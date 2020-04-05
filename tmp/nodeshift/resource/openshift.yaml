@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      name: reactjs-teste
+      namespace: teste-gti
+      labels:
+        project: reactjs-teste
+        version: 0.1.0
+        provider: nodeshift
+        app: reactjs-teste
+        app.kubernetes.io/name: nodejs
+        app.kubernetes.io/component: reactjs-teste
+        app.kubernetes.io/instance: reactjs-teste
+        app.openshift.io/runtime: nodejs
+      annotations:
+        nodeshift/git-branch: master
+        nodeshift/git-commit: 4c30d67ccf65f49b5ae8d6bd780aff1a02de346a
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 2
+      selector:
+        app: reactjs-teste
+        project: reactjs-teste
+        provider: nodeshift
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - reactjs-teste
+            from:
+              kind: ImageStreamTag
+              namespace: teste-gti
+              name: 'reactjs-teste:latest'
+      template:
+        metadata:
+          labels:
+            project: reactjs-teste
+            version: 0.1.0
+            provider: nodeshift
+            app: reactjs-teste
+          annotations:
+            nodeshift/git-branch: master
+            nodeshift/git-commit: 4c30d67ccf65f49b5ae8d6bd780aff1a02de346a
+        spec:
+          containers:
+            - image: reactjs-teste
+              name: reactjs-teste
+              securityContext:
+                privileged: false
+              ports:
+                - containerPort: 8080
+                  name: http
+                  protocol: TCP
+              env: []
+  - apiVersion: v1
+    kind: Service
+    spec:
+      selector:
+        project: reactjs-teste
+        provider: nodeshift
+      ports:
+        - protocol: TCP
+          port: 8080
+          targetPort: 8080
+          name: http
+      type: ClusterIP
+    metadata:
+      name: reactjs-teste
+      namespace: teste-gti
+      labels:
+        project: reactjs-teste
+        version: 0.1.0
+        provider: nodeshift
+        app.kubernetes.io/name: nodejs
+        app.kubernetes.io/component: reactjs-teste
+        app.kubernetes.io/instance: reactjs-teste
+        app.openshift.io/runtime: nodejs
+      annotations:
+        nodeshift/git-branch: master
+        nodeshift/git-commit: 4c30d67ccf65f49b5ae8d6bd780aff1a02de346a
